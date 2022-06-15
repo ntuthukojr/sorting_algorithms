@@ -15,17 +15,16 @@ void bubble_sort(int *array, size_t size)
 	unsigned int i, temp, flag = 1;
 
 	if (!array)
+
 		return;
 
 	while (flag == 1 && i != size)
 		for (i = 0, flag = 0; i < size - 1; i++)
 		{
-			/* Create a window comparing two ints */
 			if (array[i] > array[i + 1])
 			{
-				/* If the current index > next index, swap the elements */
 				temp = array[i + 1], array[i + 1] = array[i], array[i] = temp;
-				print_array(array, size), flag = 1;	/* Print the updated array */
+				print_array(array, size), flag = 1;
 			}
 		}
 }

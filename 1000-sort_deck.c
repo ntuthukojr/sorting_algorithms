@@ -1,115 +1,94 @@
 #include "deck.h"
+#include <stdlib.h>
 #include <stdio.h>
-/**
- *_strcmp - compare two strings
- *@str1: string
- *@str2: string
- *Return: 1 str1 and str2 is equal, 0 they are not equal
- */
-int _strcmp(const char *str1, char *str2)
-{
-	size_t i = 0;
+#include <string.h>
 
-	if (str1 == '\0')
-		return (0);
-	while (str1[i])
-	{
-		if (str1[i] != str2[i])
-			return (0);
-		i++;
-	}
-	if (str1[i] == '\0' && str2[i])
-		return (0);
-	return (1);
+/**
+* get_val - gets the relative value of a card from it's string value
+* @str: string value of the card
+*
+* Return: relative value of the card (0 through 12)
+*/
+int get_val(const char *str)
+{
+int i;
+char *array[13] = {"Ace", "2", "3", "4", "5", "6", "7", "8", "9",
+"10", "Jack", "Queen", "King"};
+
+for (i = 0; i < 13; i++)
+{
+if (strcmp(str, array[i]) == 0)
+{
+return (i);
 }
-/**
- * get_card_position - return the position based on card you put in
- * @node: represent the card
- * Return: return the card position
- */
-int get_card_position(deck_node_t *node)
-{
-	int value;
-
-	value = (*node).card->value[0] - '0';
-	if (value < 50 || value > 57)
-	{
-		if (_strcmp((*node).card->value, "Ace") == 1)
-			value = 1;
-		else if (_strcmp((*node).card->value, "10") == 1)
-			value = 10;
-		else if (_strcmp((*node).card->value, "Jack") == 1)
-			value = 11;
-		else if (_strcmp((*node).card->value, "Queen") == 1)
-			value = 12;
-		else if (_strcmp((*node).card->value, "King") == 1)
-			value = 13;
-	}
-	value += (*node).card->kind * 13;
-	return (value);
 }
-/**
- *swap_card - swap a card for his previous one
- *@card: card
- *@deck: card deck
- *Return: return a pointer to a card which was enter it
- */
-deck_node_t *swap_card(deck_node_t *card, deck_node_t **deck)
-{
-	deck_node_t *back = card->prev, *current = card;
-	/*NULL, 19, 48, 9, 71, 13, NULL*/
-
-	back->next = current->next;
-	if (current->next)
-		current->next->prev = back;
-	current->next = back;
-	current->prev = back->prev;
-	back->prev = current;
-	if (current->prev)
-		current->prev->next = current;
-	else
-		*deck = current;
-	return (current);
+exit(1);
 }
 
 /**
- * insertion_sort_deck - function that sorts a doubly linked deck
- * of integers in ascending order using the Insertion sort algorithm
- * @deck: Dobule linked deck to sort
- */
-void insertion_sort_deck(deck_node_t **deck)
+* swap_node - swaps a node with the next node in the list
+* @list: double pointer to the beginning of the list
+* @node: node to swap
+*
+* Return: void
+*/
+void swap_node(deck_node_t **list, deck_node_t *node)
 {
-	int value_prev, value_current;
-	deck_node_t *node;
-
-	if (deck == NULL || (*deck)->next == NULL)
-		return;
-	node = (*deck)->next;
-	while (node)
-	{
-		/* preparing the previous value */
-		if (node->prev)
-		{
-			value_prev = get_card_position((node->prev));
-			value_current = get_card_position(node);
-		}
-		while ((node->prev) && (value_prev > value_current))
-		{
-			value_prev = get_card_position((node->prev));
-			value_current = get_card_position(node);
-			node = swap_card(node, deck);
-
-		}
-		node = node->next;
-	}
+node->next->prev = node->prev;
+if (node->prev)
+node->prev->next = node->next;
+else
+*list = node->next;
+node->prev = node->next;
+node->next = node->next->next;
+node->prev->next = node;
+if (node->next)
+node->next->prev = node;
 }
+
 /**
- * sort_deck - sort a deck you put in using
- * insertion sort algorithm
- * @deck: deck
- */
+* sort_deck - sorts a linked list deck of cards
+* @deck: double pointer to the deck to sort
+*
+* Return: void
+*/
 void sort_deck(deck_node_t **deck)
 {
-	insertion_sort_deck(deck);
-}
+char swapped = 1, c1, c2;
+deck_node_t *current;
 
+if (deck == NULL || *deck == NULL || (*deck)->next == NULL)
+return;
+current = *deck;
+while (swapped != 0)
+{
+swapped = 0;
+while (current->next != NULL)
+{
+c1 = get_val(current->card->value) + 13 * current->card->kind;
+c2 = get_val(current->next->card->value) + 13 * current->next->card->kind;
+if (c1 > c2)
+{
+swap_node(deck, current);
+swapped = 1;
+}
+else
+current = current->next;
+}
+if (swapped == 0)
+break;
+swapped = 0;
+while (current->prev != NULL)
+{
+c1 = get_val(current->card->value) + 13 * current->card->kind;
+c2 = get_val(current->prev->card->value) + 13 * current->prev->card->kind;
+if (c1 < c2)
+{
+swap_node(deck, current->prev);
+swapped = 1;
+}
+else
+current = current->prev;
+}
+}
+}
